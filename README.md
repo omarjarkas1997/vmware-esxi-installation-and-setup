@@ -139,7 +139,10 @@
         - Press Enter to reboot the host. If you are performing a new installation, or you chose to overwrite an existing VMFS datastore, during the reboot operation, VFAT scratch and VMFS partitions are created on the host disk.
         - Set the first boot device to be the drive on which you installed ESXi in Step 3. For information about changing boot order, see your hardware vendor documentation.
 - ### **After You Install and Set Up ESX**
-    - 
+    - After installing and setting up ESXi, you can manage the host using the vSphere Web Client, vCenter Server, and the VMware Host Client. You can remotely manage your ESXi host using the VMware Host Client, vSphere Web Client, and vCenter Server. Instructions for downloading and installing vCenter Server components or deploying the vCenter Server Appliance can be found in vCenter Server Installation and Setup.
+    - ESXi hosts must be licensed before the 60-day evaluation period expires. ESXi hosts are licensed with vSphere licenses that have per-CPU capacity. To license hosts correctly, you must assign them a vSphere license that has enough CPU capacity to cover all CPUs in the hosts and supports all features they use. You can license ESXi hosts using the license management function in the vSphere Web Client, set up bulk licensing with PowerCLI commands, or license individual ESXi hosts using a direct connection with the VMware Host Client.
+    - ESXi evaluation mode provides a set of features equal to a vSphere Enterprise Plus license, and it is crucial to assign a license that supports all the features in use before the evaluation mode expires. The installable version of ESXi hosts is always installed in evaluation mode, while ESXi Embedded might be in evaluation mode or prelicensed. The evaluation period is 60 days.
+    - It is essential to record the license key of an ESXi host in case the host becomes inaccessible or unbootable. You can access the license key from the direct console user interface or the vSphere Web Client.
 - ### **System Logging**
     - In the context of VMware ESXi and vSphere, **hostd, vpxa, and fdm** are essential system services that play a crucial role in managing and monitoring the virtual infrastructure.
         - hostd (Management Agent):: The hostd service, also known as the Management Agent, runs on each ESXi host and is responsible for managing the host's operations and resources. It communicates with vCenter Server and other management tools, allowing you to perform tasks such as creating and managing virtual machines, configuring the host, and monitoring host performance. The hostd service is a crucial component for remote management and integration with vSphere.
@@ -196,8 +199,7 @@
                 - Syslog.global.logDirUnique:: Selecting this option creates a unique subdirectory for each ESXi host.
                 - Syslog.global.LogHost:: Remote host to which syslog messages are forwarded and the port on which the remote host receives syslog messages.
             - (Optional) To overwrite the default log size and log rotation for any of the logs:
-a. Click the name of the log you want to customize.
-b. Click Edit and enter the number of rotations and the log size you want.
+                - a. Click the name of the log you want to customize.
+                - b. Click Edit and enter the number of rotations and the log size you want.
             - Click OK.
         - After configuring system logging, your ESXi host's log files will be managed according to your specified settings, ensuring efficient log management and making it easier to analyze and troubleshoot issues within the virtual infrastructure.
-- 
