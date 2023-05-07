@@ -1,1 +1,203 @@
-# vmware-esxi-installation-and-setup
+- ### **Introduction to vSphere**
+    - **What are the two components of vSphere?**
+        - The two core components of vSphere are **ESXi** and **vCenter Server**
+            - ESXi is the virtualization platform on which you can create and run virtual machines and virtual appliances
+            - vCenter Server is a service that acts as a central administrator for ESXi hosts connected in a network. 
+                - vCenter Server lets you pool and manage the resources of multiple hosts.
+    - **What is VMware Platform Services Controller?**
+        - all prerequisite services for running vCenter Server and the vCenter Server components are bundled in the VMware Platform Services Controller™
+        - must always install or deploy the Platform Services Controller before installing or deploying vCenter Server
+- ### **Overview of the vSphere - Installation and Setup Process**
+    - Small envrionment with one vCenter Server Instance
+        - Start the vSphere installation and setup
+            - Install ESXi on at least one host
+            - Set up ESXi
+            - Deploy or install vCenter Server with an embedded Platform Services Controller
+            - Log in to the vSphere Web Client to create and organize your vCenter Server inventory
+        - End of the vSphere installation and setup
+        - ![](https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FCatfish%2FsSO0uPU4g2.png?alt=media&token=f2b5ff36-aac8-4848-9dfb-6634d40989fb)
+    - **What is the difference between embedded and the external Platform Services Controller in VMware ESXi Installation and Setup?**
+        - In VMware vSphere, the Platform Services Controller (PSC) is a component that manages and handles key services like Single Sign-On (SSO), licensing, and certificate management. The PSC can be deployed in two different architectures: **embedded and external**.
+        - **Embedded Platform Services Controller:**
+            - In an embedded PSC deployment, the PSC is installed on the same virtual machine or physical server as the vCenter Server. Both the vCenter Server and PSC components run together on a single instance.
+                - Pros:
+                    - Simplified deployment and management, as both components are hosted on the same machine.
+                    - Reduced complexity, as there are fewer components to manage.
+                    - Ideal for smaller environments with a limited number of vCenter Server instances.
+                - Cons:
+                    - Limited scalability, as you cannot distribute PSC services across multiple instances.
+                    - A single point of failure, as both vCenter Server and PSC are hosted on the same machine. If the machine fails, both services are affected.
+        - **External Platform Services Controller:**
+            - In an external PSC deployment, the PSC is installed on a separate virtual machine or physical server, independent of the vCenter Server. This allows for a distributed architecture where multiple vCenter Server instances can connect to a single or multiple PSC instances.
+                - Pros:
+                    - Improved scalability, as multiple vCenter Server instances can share PSC services.
+                    - Enhanced high availability and load balancing options by deploying multiple PSCs in a multi-site configuration.
+                    - Better separation of roles and services, which may be required in some security or compliance scenarios.
+                - Cons:
+                    - Increased complexity in deployment and management due to additional instances.
+                    - Additional resources required, as each PSC and vCenter Server instance consumes resources like CPU, memory, and storage.
+        - VMware announced the deprecation of the external PSC architecture in vSphere 6.7 Update 1 and later versions. The preferred method is now the embedded PSC deployment, with enhanced capabilities for scalability and high availability. If you are planning a new VMware ESXi installation or upgrading an existing environment, it is recommended to use the embedded PSC architecture.
+    - **What can you tell me about ESXi Evaluation and Licensed Modes?**
+        - VMware ESXi is a popular hypervisor that allows you to run multiple virtual machines on a single physical server. When you install ESXi, it operates in one of two modes: Evaluation Mode or Licensed Mode. Both modes offer the same set of features and capabilities but differ in terms of licensing and usage duration.
+            - Evaluation Mode: When you first install VMware ESXi, it automatically starts in Evaluation Mode. This mode allows you to use all the features and functions of the ESXi hypervisor without a license for a limited period, typically 60 days. This trial period is intended for users to test and evaluate the product before purchasing a license.
+        - During the evaluation period, you can access all the features and capabilities of the highest license tier, VMware vSphere Enterprise Plus. After the 60-day evaluation period ends, you must apply a valid license to continue using the ESXi host.
+        - **Licensed Mode:** Licensed Mode is activated when you apply a valid license key to the ESXi host. Different license levels are available, each offering a specific set of features and capabilities. The primary license levels are:
+            - VMware vSphere Hypervisor (Free ESXi): This is the free version of the hypervisor with a limited set of features, mainly aimed at small environments or home labs. It lacks advanced features like vMotion, High Availability, and Distributed Resource Scheduler. You'll still need to register for a free license key and apply it to your ESXi host to use it indefinitely.
+            - VMware vSphere Standard: This entry-level commercial license provides core features like vMotion, High Availability, and vSphere Replication. It is suitable for small and medium-sized businesses that require basic virtualization features.
+            - VMware vSphere Enterprise Plus: This is the highest license tier, offering advanced features such as Distributed Resource Scheduler, Storage vMotion, and Network I/O Control. It is aimed at larger enterprises and environments with more demanding workloads.
+        - In summary, the main difference between ESXi Evaluation and Licensed Modes is the duration of usage and access to features based on the applied license. Evaluation Mode offers a 60-day trial period with all features enabled, while Licensed Mode provides continued usage with features determined by the purchased license level.
+    - **What is the ESXi hosts?**
+        - ESXi hosts are physical servers with VMware's ESXi hypervisor installed. The ESXi hypervisor is a ^^Type-1 bare-metal hypervisor^^, installed directly on the hardware without an underlying operating system. The primary function of ESXi hosts is to provide computing resources (CPU, memory, storage, and networking) for running virtual machines (VMs).
+        - ESXi hosts are the foundation of a VMware vSphere virtualization environment. They pool their resources to create a virtualized infrastructure, allowing you to run multiple VMs with different operating systems and applications on a single physical server. This improves resource utilization, simplifies management, and reduces costs associated with hardware and maintenance.
+        - **If ESXi hypervisor is a Type-1 bare-metal hypervisor, how do we boot it up without an initial software?**
+            - The ESXi hypervisor, being a Type-1 bare-metal hypervisor, replaces the traditional operating system on the physical server. Although there is no underlying operating system, the ESXi hypervisor itself includes a minimal OS layer responsible for booting and managing the hypervisor.
+            - To boot up an ESXi host, you'll need to follow these steps:
+                - Prepare the installation media: Download the ESXi ISO file from VMware's website, and create a bootable USB drive or burn it to a CD/DVD. This installation media will contain the hypervisor and its minimal OS layer.
+                - Set the boot order: Power on the physical server, and access its BIOS or UEFI settings. Configure the boot order to prioritize the installation media you prepared (USB drive or CD/DVD).
+                - Boot from the installation media: Save the BIOS/UEFI settings and reboot the server. The server will now boot from the ESXi installation media.
+                - Install ESXi: The ESXi installer will guide you through the installation process. You'll be asked to select a storage device for the hypervisor, configure network settings, set a root password, and customize other options as needed. Once the installation is complete, the server will reboot.
+                - Boot ESXi hypervisor: After the installation and reboot, the server will boot directly into the ESXi hypervisor, bypassing the need for a traditional operating system. The minimal OS layer included in the ESXi hypervisor handles the boot process and manages the hypervisor components.
+            - Once the ESXi hypervisor is up and running, you can connect to it using the VMware vSphere Client or VMware vCenter Server to manage the host and create virtual machines.
+- ### **Installation Requirements**
+    - **What are ESXi installation requirements?**
+        - ESXi Software Requirements
+            - In addition to the hardware requirements, there are certain software requirements that must be met to install or upgrade ESXi:
+                - VMware vSphere 6.7 ISO:: You need the installation media, which can be downloaded from VMware's website. It is available as an ISO file that can be burned to a CD/DVD or used to create a bootable USB drive.
+                - ESXi License:: To use ESXi beyond the trial period, you will need a valid license. VMware offers different licensing options depending on your needs and the scale of your virtual infrastructure.
+                - Boot device:: The server must have a boot device with a minimum of 1 GB free space for the ESXi installation. This can be a local disk, USB drive, or an SD card. However, it is recommended to have a boot device with at least 5.2 GB of free space to accommodate future updates and patches.
+                - Storage for VMs:: You need sufficient storage space for your virtual machines. This can be local storage (such as SATA or SAS drives), network storage (such as NFS or iSCSI), or a combination of both.
+                - Compatible management software:: To manage your ESXi host and its virtual machines, you will need a compatible management software like VMware vCenter Server or vSphere Client.
+                - Network connectivity:: To access and manage your ESXi host, you will need network connectivity between the host and your management workstation or server.
+        - By meeting these hardware and software requirements, you can ensure a successful installation and operation of ESXi 6.7 on your system.
+    - **What are the booting requirements for ESXI?**
+        - The booting requirements for ESXi 6.7 include:
+            - UEFI Support:: vSphere 6.7 supports booting ESXi hosts using the Unified Extensible Firmware Interface (UEFI). UEFI enables booting from various devices, including hard drives, CD-ROM drives, and USB media.
+            - VMware Auto Deploy:: Starting with vSphere 6.7, VMware Auto Deploy supports network booting and provisioning of ESXi hosts with UEFI. This allows for automated deployment and configuration of multiple ESXi hosts using a centralized management infrastructure like VMware vCenter Server.
+            - Large Disk Support:: ESXi 6.7 can boot from a disk larger than 2 TB if the system firmware and the firmware on any add-in card being used support it. It is crucial to consult the vendor documentation for specific information about compatibility and support.
+            - Boot Device:: The server must have a boot device with a minimum of 1 GB of free space for the ESXi installation. This can be a local disk, USB drive, or an SD card. However, it is recommended to have a boot device with at least 5.2 GB of free space to accommodate future updates and patches.
+            - Boot Mode:: Depending on your hardware, you may have to configure your system's BIOS or UEFI settings to support the boot mode required for ESXi 6.7. For instance, you may need to enable UEFI boot mode and disable legacy BIOS boot mode.
+            - Network Connectivity:: To access and manage your ESXi host, you will need network connectivity between the host and your management workstation or server. This is especially important when using VMware Auto Deploy for network booting and provisioning of ESXi hosts.
+        - By meeting these booting requirements, you can ensure a successful boot and operation of ESXi 6.7 on your system.
+    - **What is the Storage Requirements for ESXi 6.7 Installation?**
+        - The storage requirements for ESXi 6.7 installation can be summarized as follows:
+            - Boot device:: A minimum of 1 GB is required for the boot device. However, it is recommended to use a 4 GB or larger device to accommodate an expanded coredump partition.
+            - Non-USB boot devices:: These devices need 5.2 GB of disk space to create an on-disk filesystem partition layout, including VMFS and scratch volumes.
+            - Scratch partition:: It is recommended not to leave the /scratch on the ESXi host ramdisk. Instead, create an on-disk VFAT scratch partition for better performance and memory optimization. Reconfigure the /scratch partition to use a separate disk or LUN if needed.
+            - USB and SD devices:: Due to their I/O sensitivity, the installer does not create a scratch partition on USB and SD devices. After installation, reconfigure /scratch to use a persistent datastore. It is recommended to use high-quality USB flash drives of 16 GB or larger for better durability and to accommodate the extended coredump partition.
+            - Auto Deploy installations:: The installer attempts to allocate a scratch region on a local disk or datastore. If unavailable, /scratch is placed on ramdisk. After installation, reconfigure /scratch to use a persistent datastore.
+            - SAN boot or Auto Deploy environments:: There's no need to allocate a separate LUN for /scratch for each ESXi host. Multiple ESXi host scratch regions can be co-located on a single LUN. However, consider the LUN size and the I/O behavior of the virtual machines when assigning the number of hosts to a single LUN.
+        - By meeting these storage requirements, you can ensure a successful installation and operation of ESXi 6.7 on your system.
+- ### **ESXI Interactive Installation**
+    - **How to format a USB Flash Drive to Boot the ESXi Installation?**
+        - Formatting a USB Flash Drive to Boot the ESXi Installation involves the following steps:
+            - Prerequisites:
+                - Linux machine with superuser access
+                - USB flash drive that can be detected by the Linux machine
+                - ESXi ISO image, VMware-VMvisor-Installer-version_number-build_number.x86_64.iso, which includes the isolinux.cfg file
+                - Syslinux 3.86 package (other versions might not be compatible with ESXi)
+            - Procedure:
+                - Boot Linux, log in, and enter superuser mode using a su or sudo root command.
+                - Determine how your USB flash drive is detected:
+                    - a. Plug in your USB flash drive.
+                    - b. At the command line, run tail -f /var/log/messages.
+                    - c. Several messages identify the USB flash drive (e.g., [sdb] Attached SCSI removable disk). Use the identification (in this case, sdb) in the following steps.
+                - Create a partition table on the USB flash device:
+                    - a. Run /sbin/fdisk /dev/sdb.
+                    - b. Enter o to create a new empty DOS partition table.
+                    - c. Enter d to delete partitions until they are all deleted.
+                    - d. Enter n to create a primary partition 1 that extends over the entire disk.
+                    - e. Enter t to set the type to an appropriate setting for the FAT32 file system, such as c.
+                    - f. Enter a to set the active flag on partition 1.
+    - **What are the prerequisites to installing ESXi Interactively?**
+        - To install ESXi interactively, you must meet the following prerequisites:
+            - Have the ESXi installer ISO on a USB flash drive. 
+            - Verify that the server hardware clock is set to UTC. This setting is in the system BIOS.
+            - Verify that a keyboard and monitor are attached to the ESXi software installed on the machine.
+            - Consider disconnecting your network storage. This action decreases the time it takes for the installer to search for available disk drives. When you disconnect network storage, any files on the disconnected disks are unavailable at installation. Do not disconnect a LUN that contains an existing ESX or ESXi installation or a VMFS datastore that contains the Service Console of an existing ESX installation, as these actions can affect the outcome of the installation.
+            - Gather the information required by the ESXi installation wizard. See "Required Information for ESXi Installation."
+                - ![](https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FCatfish%2FaDGnsmLBK5.png?alt=media&token=0495dc56-49b8-4c6d-88dc-14704efce782)
+            - Verify that ESXi Embedded is not present on the host machine. ESXi Installable and ESXi Embedded cannot exist on the same host.
+        - Note: You can also PXE boot the ESXi installer to run an interactive installation or a scripted installation. See "PXE Booting the ESXi Installer."
+    - **What are the procedure to install interactively?**
+        - Insert the ESXi installer CD/DVD into the CD/DVD-ROM drive, or attach the Installer USB flash drive and restart the machine.
+        - Set the BIOS to boot from the CD-ROM device or the USB flash drive. Refer to your hardware vendor documentation for information on changing boot order.
+        - On the "Select a Disk" page, select the drive to install ESXi and press Enter.
+            - Press F1 for information about the selected disk.
+            - Note that the disk order might be determined by the BIOS and could be out of order. This might occur on systems where drives are continuously being added and removed.
+            - If you select a disk that contains data, the "Confirm Disk Selection" page appears.
+            - If you are installing on a disk with a previous ESXi or ESX installation or VMFS datastore, the installer provides several choices.
+            - If you are upgrading or migrating an existing ESXi installation, see the VMware ESXi Upgrade documentation.
+            - If you select a disk that is in a vSAN disk group, the resulting installation depends on the type of disk and the group size:
+                - If you select an SSD, the SSD and all underlying HDDs in the same disk group are wiped.
+                - If you select an HDD, and the disk group size is greater than two, only the selected HDD is wiped.
+                - If you select an HDD disk, and the disk group size is two or less, the SSD and the selected HDD are wiped.
+            - For more information about managing vSAN disk groups, see the vSphere Storage documentation.
+        - Select the keyboard type for the host. You can change the keyboard type after installation in the direct console.
+        - Enter the root password for the host. You can change the password after installation in the direct console.
+        - Press Enter to start the installation.
+        - When the installation is complete, remove the installation CD, DVD, or USB flash drive.
+        - Press Enter to reboot the host. If you are performing a new installation, or you chose to overwrite an existing VMFS datastore, during the reboot operation, VFAT scratch and VMFS partitions are created on the host disk.
+        - Set the first boot device to be the drive on which you installed ESXi in Step 3. For information about changing boot order, see your hardware vendor documentation.
+- ### **After You Install and Set Up ESX**
+    - 
+- ### **System Logging**
+    - In the context of VMware ESXi and vSphere, **hostd, vpxa, and fdm** are essential system services that play a crucial role in managing and monitoring the virtual infrastructure.
+        - hostd (Management Agent):: The hostd service, also known as the Management Agent, runs on each ESXi host and is responsible for managing the host's operations and resources. It communicates with vCenter Server and other management tools, allowing you to perform tasks such as creating and managing virtual machines, configuring the host, and monitoring host performance. The hostd service is a crucial component for remote management and integration with vSphere.
+        - vpxa (VirtualCenter Agent):: The vpxa service, also known as the VirtualCenter Agent or vCenter Server Agent, runs on each ESXi host and is responsible for communication between the host and the vCenter Server. The vpxa agent receives commands from vCenter Server and translates them into actions executed on the ESXi host. It also sends information about the host and its virtual machines back to the vCenter Server. The vpxa service is essential for the centralized management and orchestration provided by vCenter Server in a vSphere environment.
+        - fdm (Fault Domain Manager):: The fdm service, also known as the vSphere HA agent, runs on each ESXi host that is part of a vSphere High Availability (HA) cluster. The Fault Domain Manager is responsible for monitoring the health and availability of hosts and virtual machines in the cluster, as well as managing the vSphere HA functionality. In case of host failures, the fdm service works with other HA agents in the cluster to restart affected virtual machines on other available hosts, ensuring minimal downtime and maintaining high availability.
+    - Logs generated by these services provide valuable information for monitoring, diagnosing, and troubleshooting issues within the virtual infrastructure. Ensuring enough storage space for these logs is crucial for effectively managing and operating ESXi hosts and vSphere environments.
+    - **What is the syslog service?**
+        - The syslog service is a standardized logging system used by various operating systems and applications to collect, store, and forward log messages. It is a critical component for monitoring, managing, and troubleshooting issues within an IT infrastructure.
+        - Syslog service provides a centralized and structured way to handle log messages generated by different system components, such as the kernel, hardware devices, and applications. It is responsible for receiving, processing, and storing log messages, as well as forwarding them to other systems or remote servers for centralized log management and analysis.
+        - Syslog uses a client-server architecture, where client devices or applications send log messages to a syslog server, also known as a syslog daemon. The syslog server collects and processes these messages, stores them in log files, and can forward them to other syslog servers for further analysis or backup purposes.
+        - Syslog messages usually contain essential information about system events, errors, or status changes. They follow a specific format, including a timestamp, hostname or IP address, message severity (called facility and priority levels), and the actual log message text.
+        - In the context of VMware ESXi, the syslog service (vmsyslogd) is used to manage log messages generated by the VMkernel and other system components. Configuring the syslog service on an ESXi host allows administrators to control log file storage, rotation, and forwarding options, making it easier to analyze and troubleshoot issues within the virtual infrastructure.
+    - **What is the required free space for system logging?**
+        - The required free space for system logging depends on the storage availability and how system logging is configured. For hosts deployed with ^^Auto Deploy^^, the available space for logs is small as they are stored on a RAM disk. In such cases, it's recommended to reconfigure log storage by either **redirecting logs to a remote collector over the network** or to a **NAS or NFS store**.
+        - There's no need to reconfigure log storage for ESXi hosts using the default configuration (storing logs in a scratch directory on the VMFS volume). ESXi 6.7 configures logs to best suit the installation and provides enough space for log messages.
+        - Recommended minimum size and rotation configuration for hostd, vpxa, and fdm logs:
+            - Management Agent (hostd):
+                - Maximum Log File Size: 10 MB
+                - Number of Rotations to Preserve: 10
+                - Minimum Disk Space Required: 100 MB
+            - VirtualCenter Agent (vpxa):
+                - Maximum Log File Size: 5 MB
+                - Number of Rotations to Preserve: 10
+                - Minimum Disk Space Required: 50 MB
+            - vSphere HA agent (Fault Domain Manager, fdm):
+                - Maximum Log File Size: 5 MB
+                - Number of Rotations to Preserve: 10
+                - Minimum Disk Space Required: 50 MB
+        - For information on setting up a remote log server, refer to the "Configure Syslog on ESXi Hosts" documentation. By ensuring adequate space for system logging, you can maintain proper logging and diagnostics for your ESXi 6.7 host.
+    - **What are hosts deployted with Auto Deploy?**
+        - Hosts deployed with Auto Deploy are ESXi hosts that are provisioned and managed using VMware's Auto Deploy feature. Auto Deploy is a part of VMware vSphere and enables the automated deployment of ESXi hosts over the network. With Auto Deploy, you can quickly provision and configure multiple ESXi hosts without the need for manual intervention.
+        - Auto Deploy uses a combination of Preboot Execution Environment (PXE) booting and Host Profiles to provision ESXi hosts. When a host is booted with Auto Deploy, it fetches the ESXi image and configuration settings from a central Auto Deploy server over the network. The ESXi image is loaded into the host's memory, and the host is configured based on the assigned Host Profile.
+        - Some key benefits of using Auto Deploy for ESXi hosts include:
+            - Rapid deployment: Quickly provision and configure multiple ESXi hosts in a short amount of time, which is particularly useful in large-scale environments.
+            - Centralized management: Manage ESXi images and host configurations from a centralized Auto Deploy server, simplifying the administration of your virtual infrastructure.
+            - Consistency: Ensure consistent ESXi configurations across all hosts by using Host Profiles, reducing the possibility of configuration drift and improving security.
+            - Simplified updates and upgrades: Streamline the process of updating or upgrading ESXi hosts by updating the central Auto Deploy server with the new image or patches, and then rebooting the hosts to load the updated image.
+        - However, it's important to note that hosts deployed with Auto Deploy store logs on a RAM disk, which means that the available space for logs is limited. To overcome this limitation, you can reconfigure log storage by redirecting logs to a remote collector or a NAS/NFS store.
+    - **What is meant by the number of rotation to preserve?**
+        - The term "number of rotations to preserve" in the context of log management refers to the number of old log files that are kept when a log file reaches its maximum size and is rotated. Log rotation is a process of creating new log files and archiving or deleting old ones, which helps prevent logs from consuming too much disk space and makes log management more efficient.
+        - When a log file reaches its maximum size, a new log file is created, and the old log file is renamed or compressed. The number of rotations to preserve determines how many old log files are kept before the oldest one is deleted or overwritten. This setting allows you to control the disk space used by logs and retain a specific number of old log files for historical analysis or troubleshooting purposes.
+        - For example, if the number of rotations to preserve is set to 10, the system will keep 10 old log files along with the current active log file. When the 11th rotation occurs, the oldest log file among the preserved ones will be deleted or overwritten to make room for the new log file.
+    - **How to configure system logging?**
+        - Configuring system logging on an ESXi host involves adjusting settings related to log files, including their size, rotation, storage location, and forwarding options. You can use the vSphere Web Client or the esxcli system syslog vCLI command to configure the syslog service.
+        - Here's a step-by-step procedure on how to configure system logging using the vSphere Web Client:
+            - In the vSphere Web Client inventory, select the host.
+            - Click Configure.
+            - Under System, click Advanced System Settings.
+            - Filter for syslog.
+            - To set up logging globally, select the setting to change and click Edit. You can modify settings such as:
+                - Syslog.global.defaultRotate:: Maximum number of archives to keep.
+                - Syslog.global.defaultSize:: Default size of the log, in KB, before the system rotates logs.
+                - Syslog.global.LogDir:: Directory where logs are stored. The directory can be on mounted NFS or VMFS volumes.
+                - Syslog.global.logDirUnique:: Selecting this option creates a unique subdirectory for each ESXi host.
+                - Syslog.global.LogHost:: Remote host to which syslog messages are forwarded and the port on which the remote host receives syslog messages.
+            - (Optional) To overwrite the default log size and log rotation for any of the logs:
+a. Click the name of the log you want to customize.
+b. Click Edit and enter the number of rotations and the log size you want.
+            - Click OK.
+        - After configuring system logging, your ESXi host's log files will be managed according to your specified settings, ensuring efficient log management and making it easier to analyze and troubleshoot issues within the virtual infrastructure.
+- 
